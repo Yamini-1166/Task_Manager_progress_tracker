@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Task Manager & Progress Tracker</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      transition: background 0.5s ease;
+    }
+    h1 {
+      text-align: center;
+      color: #00796b;
+    }
+    .quote {
+      text-align: center;
+      font-style: italic;
+      margin-bottom: 15px;
+      color: #555;
+    }
+    .theme-toggle {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type="text"] {
+      width: 60%;
+      padding: 10px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    select {
+      padding: 10px;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      background-color: #00796b;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #004d40;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: #f1f8e9;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .completed {
+      text-decoration: line-through;
+      color: #757575;
+    }
+    .progress-bar {
+      height: 20px;
+      background: #c8e6c9;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+    .progress {
+      height: 100%;
+      background: #388e3c;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌿 Task Manager & Progress Tracker</h1>
+  <div class="quote">“Small steps every day lead to big results.”</div>
+  <div class="theme-toggle">
+    <button onclick="setTheme('vasantham')">🌸 Vasantham</button>
+    <button onclick="setTheme('winter')">❄️ Winter Arc</button>
+  </div>
+  <div class="container">
+    <input type="text" id="taskInput" placeholder="Enter a new task..." />
+    <select id="category">
+      <option value="🌱">Study</option>
+      <option value="🧘‍♀️">Self-care</option>
+      <option value="💻">Coding</option>
+    </select>
+    <button onclick="addTask()">Add</button>
+    <ul id="taskList"></ul>
+    <div class="progress-bar">
+      <div class="progress" id="progress"></div>
+    </div>
+  </div>
+
+  <script>
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    function saveTasks() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function renderTasks() {
+      const list = document.getElementById("taskList");
+      list.innerHTML = "";
+      tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        li.className = task.completed ? "completed" : "";
+        li.innerHTML = `
+          <span onclick="toggleComplete(${index})">${task.category} ${task.text}</span>
+          <div>
+            <button onclick="editTask(${index})">✏️</button>
+            <button onclick="deleteTask(${index})">🗑️</button>
+          </div>
+        `;
+        list.appendChild(li);
+      });
+      updateProgress();
+    }
+
+    function addTask() {
+      const input = document.getElementById("taskInput");
+      const category = document.getElementById("category").value;
+      const text = input.value.trim();
+      if (text) {
+        tasks.push({ text, category, completed: false });
+        input.value = "";
+        saveTasks();
+        renderTasks();
+      }
+    }
+
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      saveTasks();
+      renderTasks();
+    }
+
+    function editTask(index) {
+      const newText = prompt("Edit task:", tasks[index].text);
+      if (newText !== null) {
+        tasks[index].text = newText.trim();
+        saveTasks();
+        renderTasks();
+      }
+    }
+
+    function toggleComplete(index) {
+      tasks[index].completed = !tasks[index].completed;
+      saveTasks();
+      renderTasks();
+    }
+
+    function updateProgress() {
+      const completed = tasks.filter(t => t.completed).length;
+      const total = tasks.length;
+      const percent = total ? (completed / total) * 100 : 0;
+      document.getElementById("progress").style.width = percent + "%";
+    }
+
+    function setTheme(theme) {
+      if (theme === "vasantham") {
+        document.body.style.background = "linear-gradient(to right, #ffe0f0, #e0f7fa)";
+      } else if (theme === "winter") {
+        document.body.style.background = "linear-gradient(to right, #e0f7fa, #e3f2fd)";
+      }
+    }
+
+    renderTasks();
+  </script>
+</body>
+</html>
+
